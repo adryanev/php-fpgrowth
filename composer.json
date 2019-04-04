@@ -1,0 +1,21 @@
+{
+    "name": "adryanev/php-fpgrowth",
+    "description": "FP Growth and CPB Rules for PHP",
+    "type": "library",
+    "license": "GPL",
+    "authors": [
+        {
+            "name": "adryanev",
+            "email": "adryanekavandra@gmail.com"
+        }
+    ],
+    "require": {
+        "filp/whoops": "^2.3",
+        "alphazygma/combinatorics": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "adryanev\\fpgrowth\\": "src"
+        }
+    }
+}
