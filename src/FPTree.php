@@ -8,19 +8,20 @@
 
 namespace adryanev\fpgrowth;
 
+use Kint\Kint;
 use Math\Combinatorics\Combination;
 
 class FPTree
 {
 
    public $root;
-   public static $headerList;
+   public $headerList;
    public $frequentItems;
 
    public function __construct($transactions, $threshold, $rootValue, $rootCount){
 
-       $this->frequentItems = self::findFrequentItems($transactions, $threshold);
-       self::$headerList = self::buildHeaderList($this->frequentItems);
+       $this->frequentItems = $this->findFrequentItems($transactions, $threshold);
+       $this->headerList = $this->buildHeaderList($this->frequentItems);
        $this->root = $this->buildFPTree($transactions, $rootValue, $rootCount, $this->frequentItems);
    }
 
@@ -88,7 +89,7 @@ class FPTree
                 return $compare;
             });
             $sortedItems = $holder;
-            if(sizeof($sortedItems)>0) $this->insertTree($sortedItems,$root, self::$headerList);
+            if(sizeof($sortedItems)>0) $this->insertTree($sortedItems,$root, $this->headerList);
         }
 //        print "HeaderList Now";
 //        print_r(self::$headerList);
@@ -96,6 +97,8 @@ class FPTree
 //        print_r($root);
 //
 //        exit();
+
+
         return $root;
 
 
@@ -190,35 +193,40 @@ class FPTree
 
     private function generatePatternList()
     {
-        $patterns = [];
 
-        $pattern = ['suffix'=>null, 'supportCount'=>null];
+        $patterns = ['suffix'=>null,'patterns'=>[],];
+        $pattern = ['pattern'=>[], 'supportCount'=>0];
         $items = array_keys($this->frequentItems);
 
         if(is_null($this->root->itemID)){
-           $pattern['suffix'] =null;
+           $patterns['suffix'] =null;
         }else{
-            $pattern['suffix'][] = $this->root->itemID;
+            $patterns['suffix'] = $this->root->itemID;
+            $pattern['pattern'][] = $this->root->itemID;
             $pattern['supportCount'] = $this->root->supportCount;
-            $patterns[] = $pattern;
+            array_push($patterns['patterns'],$pattern);
         }
+
+
 
         for($i=1; $i<sizeof($items)+1;$i++){
             $combination = Combination::get($items,$i);
             foreach ($combination as $subset){
-               $a = $subset;
-               array_push($a, $this->root->itemID);
-               asort($a);
+                $pats['pattern'] = $subset;
+               asort($pats['pattern']);
                $val = [];
-               foreach ($a as $x){
+               foreach ($pats['pattern'] as $x){
                    $val[] = $this->frequentItems[$x];
                }
                $min = min($val);
-               $pattern['suffix'] = $a;
-               $pattern['supportCount'] = $min;
-               $patterns[] = $pattern;
+               $pats['supportCount'] = $min;
+               $patterns['patterns'][] = $pats;
             }
+
         }
+
+        Kint::dump($patterns);
+        exit();
         return $patterns;
     }
 
@@ -232,32 +240,36 @@ class FPTree
             return $compare;
         });
 
-        print_r($miningOrder);
-        exit();
-
         foreach ($miningOrder as $item){
             $suffixes = [];
             $conditionalTreeInput = [];
-            $node = self::$headerList[$item];
+            $node = $this->headerList[$item];
 
             while(!is_null($node)){
                 array_push($suffixes, $node);
                 $node = $node->links;
             }
+
             foreach($suffixes as $suffix){
-                $frequency = $suffix->count;
+                $frequency = $suffix->supportCount;
                 $path = [];
                 $parent = $suffix->parent;
                 while (!is_null($parent->parent)){
                     array_push($path,$parent->itemID);
                     $parent = $parent->parent;
                 }
+
                 for ($i =0; $i<$frequency; $i++){
                     array_push($conditionalTreeInput,$path);
                 }
+
+
             }
+
             $subTree = new FPTree($conditionalTreeInput, $threshold, $item, $this->frequentItems[$item]);
             $subTreePatterns = $subTree->minePatterns($threshold);
+            !+Kint::dump($subTreePatterns);
+            exit();
 
             foreach ($subTreePatterns as $pattern){
                 if(in_array($pattern,$patterns)){

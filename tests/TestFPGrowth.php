@@ -25,7 +25,7 @@ $data = [
     [1,2,3,5],
     [1,2,3],
     ];
-echo '<pre>';
+
 //
 $fpGrowth = new FPGrowth();
 $patterns = $fpGrowth->findFrequentPattern($data,2);
