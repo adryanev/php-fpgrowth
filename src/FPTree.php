@@ -37,17 +37,11 @@ class FPTree
             }
         }
 
-        print "Items sebelum di cek treshold".PHP_EOL;
-        print_r($items);
         foreach ($items as $key =>$value){
             if($value < $threshold){
                 unset($items[$key]);
             }
         }
-
-        print "Item sesudah dicek treshold". PHP_EOL;
-        print_r($items);
-
 
         return $items;
     }
@@ -59,9 +53,6 @@ class FPTree
             $headers[$key]= null;
         }
 
-        print "HeaderList".PHP_EOL;
-        print_r($headers);
-
         return $headers;
 
 
@@ -70,10 +61,8 @@ class FPTree
     private function buildFPTree($transactions, $rootValue, $rootCount, $frequentItems)
     {
         $root = new FPNode($rootValue,$rootCount,null);
-        print "The Root FP Tree".PHP_EOL;
-        print_r($root);
+
         $sortedItems = [];
-        print "Transaction".PHP_EOL;
         foreach ($transactions as $transaction){
 
             $holder = [];
@@ -194,39 +183,41 @@ class FPTree
     private function generatePatternList()
     {
 
-        $patterns = ['suffix'=>null,'patterns'=>[],];
-        $pattern = ['pattern'=>[], 'supportCount'=>0];
+        $patterns = new Patterns();
+        $pattern = new Pattern();
         $items = array_keys($this->frequentItems);
 
         if(is_null($this->root->itemID)){
-           $patterns['suffix'] =null;
+           $patterns->setSuffix(null);
         }else{
-            $patterns['suffix'] = $this->root->itemID;
-            $pattern['pattern'][] = $this->root->itemID;
-            $pattern['supportCount'] = $this->root->supportCount;
-            array_push($patterns['patterns'],$pattern);
+            $patterns->setSuffix($this->root->itemID);
+            $pattern->setPattern([$this->root->itemID]);
+            $pattern->setSupportCount($this->root->supportCount);
+            $patterns->setPatterns($pattern);
         }
 
 
 
         for($i=1; $i<sizeof($items)+1;$i++){
             $combination = Combination::get($items,$i);
+
             foreach ($combination as $subset){
-                $pats['pattern'] = $subset;
-               asort($pats['pattern']);
+                $pats = new Pattern();
+
+                asort($subset);
+                $pats->setPattern($subset);
                $val = [];
-               foreach ($pats['pattern'] as $x){
+               foreach ($pats->getPattern() as $x){
                    $val[] = $this->frequentItems[$x];
                }
                $min = min($val);
-               $pats['supportCount'] = $min;
-               $patterns['patterns'][] = $pats;
+               $pats->setSupportCount($min) ;
+               $patterns->setPatterns($pats);
             }
 
         }
 
-        Kint::dump($patterns);
-        exit();
+
         return $patterns;
     }
 
@@ -266,23 +257,30 @@ class FPTree
 
             }
 
+
             $subTree = new FPTree($conditionalTreeInput, $threshold, $item, $this->frequentItems[$item]);
             $subTreePatterns = $subTree->minePatterns($threshold);
-            !+Kint::dump($subTreePatterns);
-            exit();
 
-            foreach ($subTreePatterns as $pattern){
-                if(in_array($pattern,$patterns)){
-                    $key = array_search($pattern,$patterns);
-                    $patterns[$key]['supportCount']+=$pattern['supportCount'];
-                }else{
-                    $key = array_search($pattern,$patterns);
-                    $patterns[$key]['supportCount'] = $pattern['supportCount'];
-                }
+//            Kint::dump($subTreePatterns);
+//            exit();
+
+
+            foreach ($subTreePatterns->getPatterns() as $pattern){
+                var_dump(in_array($pattern,$patterns));
+//                if($x =in_array($pattern,$patterns)){
+//                    var_dump($x);
+//                }else{
+//                    $patterns[] = $subTreePatterns;
+//                }
 
             }
 
+
+
         }
+
+        Kint::dump($patterns);
+        exit();
 
         return $patterns;
     }
@@ -292,8 +290,8 @@ class FPTree
         $suffix = $this->root->itemID;
 
         if(!is_null($suffix)){
-            $newPattern = [];
-            foreach ($patterns as $pattern){
+            $newPattern = ['suffix'=>[]];
+            foreach ($patterns['patterns'] as $pattern){
                 $a = $pattern;
                 array_push($a, $this->root->itemID);
                 asort($a);
