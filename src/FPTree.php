@@ -177,26 +177,27 @@ class FPTree
         }
         else{
            return $this->zipPatterns($this->mineSubTree($threshold));
+//            return $this->mineSubTree($threshold);
         }
     }
 
     private function generatePatternList()
     {
 
-        $patterns = new Patterns();
+        $patterns = [];
         $pattern = new Pattern();
         $items = array_keys($this->frequentItems);
 
+        $suffix_value = null;
         if(is_null($this->root->itemID)){
-           $patterns->setSuffix(null);
+            $suffix_value = null;
+
         }else{
-            $patterns->setSuffix($this->root->itemID);
-            $pattern->setPattern([$this->root->itemID]);
+            $suffix_value = [$this->root->itemID];
+            $pattern->setPattern($suffix_value);
             $pattern->setSupportCount($this->root->supportCount);
-            $patterns->setPatterns($pattern);
+            $patterns[] = $pattern;
         }
-
-
 
         for($i=1; $i<sizeof($items)+1;$i++){
             $combination = Combination::get($items,$i);
@@ -205,14 +206,16 @@ class FPTree
                 $pats = new Pattern();
 
                 asort($subset);
-                $pats->setPattern($subset);
+                $new = array_merge($subset,$suffix_value);
+                $pats->setPattern($new);
+
                $val = [];
-               foreach ($pats->getPattern() as $x){
+               foreach ($subset as $x){
                    $val[] = $this->frequentItems[$x];
                }
                $min = min($val);
                $pats->setSupportCount($min) ;
-               $patterns->setPatterns($pats);
+               $patterns[] = $pats;
             }
 
         }
@@ -263,44 +266,39 @@ class FPTree
 
 //            Kint::dump($subTreePatterns);
 //            exit();
+//            $patterns[] = $subTreePatterns;
 
-
-            foreach ($subTreePatterns->getPatterns() as $pattern){
-                var_dump(in_array($pattern,$patterns));
-//                if($x =in_array($pattern,$patterns)){
-//                    var_dump($x);
-//                }else{
-//                    $patterns[] = $subTreePatterns;
-//                }
-
+            foreach ($subTreePatterns as $pattern){
+                if(in_array($pattern,$patterns)){
+                    $key = array_search($pattern,$patterns);
+                    $patterns[$key]->supportCount += $pattern->supportCount;
+                }else{
+                    $patterns[] = $pattern;
+                }
             }
-
-
 
         }
 
-        Kint::dump($patterns);
-        exit();
 
         return $patterns;
     }
 
     private function zipPatterns($patterns)
     {
-        $suffix = $this->root->itemID;
+        $suffix = [$this->root->itemID];
 
         if(!is_null($suffix)){
-            $newPattern = ['suffix'=>[]];
-            foreach ($patterns['patterns'] as $pattern){
-                $a = $pattern;
-                array_push($a, $this->root->itemID);
-                asort($a);
-                $val = [];
-                $pattern['suffix'] = $a;
-                $pattern['supportCount'] = $a[''];
-                $patterns[] = $pattern;
-
+            $newPattern = [];
+            foreach ($patterns as $pattern){
+                $oldPattern = $pattern->getPattern();
+                asort($oldPattern);
+                $new = array_merge($oldPattern,$suffix);
+                $newPat = new Pattern();
+                $newPat->setPattern($new);
+                $newPat->setSupportCount($pattern->getSupportCount());
+                $newPattern[] = $newPat;
             }
+            return$newPattern;
         }
 
         return $patterns;

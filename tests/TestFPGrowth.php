@@ -31,4 +31,4 @@ $fpGrowth = new FPGrowth();
 $patterns = $fpGrowth->findFrequentPattern($data,2);
 //$testCombine = [1,2,3,4,5,6,7,8];
 //$patterns = \Math\Combinatorics\Combination::get($testCombine,3);
-print_r($patterns);
+Kint::dump($patterns);
