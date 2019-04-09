@@ -15,20 +15,28 @@ $whoops = new Run;
 $whoops->pushHandler(new PrettyPageHandler);
 $whoops->register();
 $data = [
-    [1,2,5],
-    [2,4],
-    [2,3],
-    [1,2,4],
-    [1,3],
-    [2,3],
-    [1,3],
-    [1,2,3,5],
-    [1,2,3],
+    ['JN','AM','NGA'],
+    ['MGS','TT'],
+    ['JM','CAPP'],
+    ['NGK','JN','AM'],
+    ['FMF'],
+    ['RBS','AM'],
+    ['TS','CC'],
+    ['TS','T45'],
+    ['JML','KT45'],
+    ['JS','NGS'],
+    ['CAPP','KG'],
+    ['TS'],
+    ['KS','TL'],
+    ['KN','AM'],
+    ['KG'],
+    ['CAPP','EF'],
+    ['CS','NP','AM','JN','SD'],
+    ['MGS','AM'],
+    ['NGK','AM','MIL'],
+    ['WS','MIL']
     ];
 
-//
 $fpGrowth = new FPGrowth();
 $patterns = $fpGrowth->findFrequentPattern($data,2);
-//$testCombine = [1,2,3,4,5,6,7,8];
-//$patterns = \Math\Combinatorics\Combination::get($testCombine,3);
 Kint::dump($patterns);
