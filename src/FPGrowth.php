@@ -46,6 +46,17 @@ class FPGrowth
     public function generateAssociationRules($patterns, $minConfidence){
         $rules = [];
 
+        foreach ($patterns as $pattern){
+            $upperSupport = $pattern->getSupportCount();
+            $n = null;
+            $pat = $pattern->getPattern();
+
+
+            for($i =1 ; $i<sizeof($pat)-1; $i++){
+
+            }
+
+         }
         return $rules;
         }
 

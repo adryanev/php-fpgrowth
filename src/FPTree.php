@@ -148,7 +148,6 @@ class FPTree
 
         }
          else{
-//             print "Menambahkan child ke current node".PHP_EOL;
              $child = $node->addChild($first);
 
              if(is_null($headerList[$first])) $headerList[$first] = $child;
@@ -297,7 +296,6 @@ class FPTree
 
 
             foreach ($subTreePatterns as $pattern){
-                var_dump(in_array($pattern,$patterns));
                 if(in_array($pattern,$patterns)){
                     $key = array_search($pattern,$patterns);
                     $patterns[$key]->supportCount += $pattern->supportCount;
