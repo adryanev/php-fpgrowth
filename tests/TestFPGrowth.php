@@ -51,6 +51,6 @@ $data = [
 
 $fpGrowth = new FPGrowth();
 $patterns = $fpGrowth->findFrequentPattern($data,2);
-$fpGrowth->generateAssociationRules($patterns,0.6);
+$rules = $fpGrowth->generateAssociationRules($patterns,0.6);
 
-print_r($patterns);
+!+Kint::dump($rules);
