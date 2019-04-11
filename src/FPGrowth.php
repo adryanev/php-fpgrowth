@@ -8,6 +8,8 @@
 
 namespace adryanev\fpgrowth;
 
+use Math\Combinatorics\Combination;
+
 class FPGrowth
 {
     /**
@@ -45,15 +47,47 @@ class FPGrowth
      */
     public function generateAssociationRules($patterns, $minConfidence){
         $rules = [];
-
-        foreach ($patterns as $pattern){
-            $upperSupport = $pattern->getSupportCount();
-            $n = null;
+        $allArray = [];
+        foreach ($patterns as $key =>$pattern){
             $pat = $pattern->getPattern();
+            $new = array_filter($pat);
+            $allArray[] = $new;
+        }
 
 
-            for($i =1 ; $i<sizeof($pat)-1; $i++){
+        foreach ($patterns as $key => $pattern){
+            $upperSupport = $pattern->getSupportCount();
+            $pat = $pattern->getPattern();
+            $new = array_filter($pat);
+            for($i =1 ; $i<sizeof($new); $i++){
+                $combination = Combination::get($new,$i);
+                foreach ($combination as $antecedent){
+                    sort($antecedent);
+                    $consequent = array_diff($new, $antecedent);
+                    $keyConseq = [];
 
+                    foreach ($allArray as $newKey =>$arr){
+                        if($antecedent == $arr){
+                            $keyConseq[] = $newKey;
+
+                        }
+                    }
+
+                    if(!empty($keyConseq)){
+                        $rule = new Rule();
+                        $rule->antecedent = $antecedent;
+                        $rule->consequent = $consequent;
+
+                        $lowerSupport = $patterns[$keyConseq[0]]->supportCount;
+                        $confidence = $upperSupport/ $lowerSupport;
+                        $rule->confidence = $confidence;
+
+                        if($confidence >= $minConfidence){
+                            $rules[] = $rule;
+                        }
+
+                    }
+                }
             }
 
          }
