@@ -7,13 +7,28 @@
  */
 
 namespace adryanev\fpgrowth;
+
 class FPGrowth
 {
+    /**
+     * @var
+     */
     public $data;
+    /**
+     * @var
+     */
     public $minSupport;
+    /**
+     * @var
+     */
     public $minConfidence;
 
 
+    /**
+     * @param $data
+     * @param $minSupportCount
+     * @return array
+     */
     public function findFrequentPattern($data, $minSupportCount)
     {
         $this->data= $data;
@@ -23,9 +38,25 @@ class FPGrowth
         return $pattern->minePatterns($minSupportCount);
     }
 
+    /**
+     * @param $patterns
+     * @param $minConfidence
+     * @return array
+     */
     public function generateAssociationRules($patterns, $minConfidence){
         $rules = [];
 
+        foreach ($patterns as $pattern){
+            $upperSupport = $pattern->getSupportCount();
+            $n = null;
+            $pat = $pattern->getPattern();
+
+
+            for($i =1 ; $i<sizeof($pat)-1; $i++){
+
+            }
+
+         }
         return $rules;
         }
 
