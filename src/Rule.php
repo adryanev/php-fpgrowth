@@ -15,5 +15,6 @@ class Rule
 
     public $antecedent;
     public $consequent;
+    public $support;
     public $confidence;
 }

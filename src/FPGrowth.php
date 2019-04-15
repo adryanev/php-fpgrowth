@@ -77,7 +77,7 @@ class FPGrowth
                         $rule = new Rule();
                         $rule->antecedent = $antecedent;
                         $rule->consequent = $consequent;
-
+                        $rule->support = $upperSupport / sizeof($this->data);
                         $lowerSupport = $patterns[$keyConseq[0]]->supportCount;
                         $confidence = $upperSupport/ $lowerSupport;
                         $rule->confidence = $confidence;
